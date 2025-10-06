@@ -1,0 +1,304 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[portuges]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage{ragged2e}
+
+% Configurações para tabularx
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{Z}{>{\centering\arraybackslash}X}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Projeto de Rede Corporativa - BRL}
+\lhead{}
+\rfoot{Página \thepage}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        {\Large{\textbf{Projeto de Rede Corporativa}}}\\
+        \vspace{0.8cm}
+        {\large{\textbf{Empresa BRL}}}\\
+        \vspace{1.2cm}
+        \includegraphics[width=0.3\textwidth]{pucpr.png}
+        \vspace{1.2cm}
+        
+        \begin{flushleft}
+            \begin{tabbing}
+                \hspace{3cm} \= \kill
+                \textbf{Integrantes:} \\
+                \> Renan da Silva Oliveira Andrade \\
+                \> Letícia Maria Maia de Andrade Vieira \\
+                \> Brenda Gabrielli Barbosa \\
+                \\
+                \textbf{Orientador:} \\
+                \> Prof. Dr. Ricardo Cassiano Nabhen \\
+            \end{tabbing}
+        \end{flushleft}
+        \vspace{\fill}
+        \large{Outubro de 2025}
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Apresentação do Projeto}
+\label{sec:apresentacao}
+
+Este projeto tem como objetivo principal o design e a implementação de uma rede corporativa de campus para a empresa BRL. A rede conectará duas localidades, a Matriz (São Paulo) e a Filial (Curitiba), por meio de uma conexão segura através da Internet. O design hierárquico será aplicado em cada site, dividindo a infraestrutura em camadas lógicas para otimizar o desempenho, a segurança e a escalabilidade.
+
+\section{Objetivos do Projeto}
+\label{sec:objetivos}
+
+\begin{itemize}
+    \item Implementar um design de rede hierárquico: Separar a rede em camadas de acesso, distribuição e núcleo para melhor gerenciamento e desempenho.
+    \item Garantir conectividade segura e redundante: Estabelecer uma conexão principal via VPN sobre a Internet e um link de backup para assegurar a continuidade do serviço entre os dois sites.
+    \item Segregar o tráfego de rede: Utilizar VLANs para criar redes independentes para os dois departamentos em cada site, mantendo a interconectividade.
+    \item Centralizar serviços corporativos: Consolidar serviços essenciais como VoIP, DNS e web no datacenter da Matriz.
+    \item Assegurar alta disponibilidade e segurança: Implementar regras de firewall e NAT/NAPT para controlar o acesso à Internet e proteger a rede interna contra ameaças externas.
+\end{itemize}
+
+\section{Descrição do Cenário de Rede}
+\label{sec:descricao}
+
+A empresa BRL opera em duas unidades: a Matriz (São Paulo), com 150 usuários, e a Filial (Curitiba), com 100 usuários. Em ambos os sites, a rede interna é segmentada em dois departamentos. Há participantes dos dois departamentos em cada switch projetado na sua rede.
+
+\subsection{Aplicações e Serviços}
+\label{subsec:aplicacoes}
+
+\begin{itemize}
+    \item \textbf{ERP}: Servidores em ambos os sites (HTTP).
+    \item \textbf{DNS}: Servidor hospedado na Matriz, responsável por www.sigla.com.br (Matriz) e www.siglafilial.com.br (Filial).
+    \item \textbf{Telefonia IP (VoIP)}: Utiliza o protocolo SIP (UDP 5060, 5061) e RTP (UDP 10000-11000) para comunicação interna e entre as unidades. Há um servidor VoIP no datacenter de cada site.
+    \item \textbf{Acesso à Internet}: O tráfego de saída dos usuários é restrito aos serviços HTTP, HTTPS, DNS e ICMP (ping).
+\end{itemize}
+
+\section{Projeto Lógico da Rede}
+\label{sec:projeto-logico}
+
+\subsection{Topologia da Rede}
+\label{subsec:topologia}
+
+A topologia implementa o modelo hierárquico de três camadas (Núcleo, Distribuição e Acesso) em ambos os sites (Matriz e Filial). A conectividade entre os sites é garantida por um enlace VPN Site-to-Site sobre a Internet, com links redundantes para provedores de serviços.
+
+\subsection{Divisão de VLANs e Esquema de Endereçamento IP}
+\label{subsec:vlan}
+
+A segregação de tráfego é realizada através de VLANs, conforme detalhado na Tabela \ref{tab:vlans}.
+
+\begin{table}[H]
+\centering
+\caption{Esquema de VLANs e Endereçamento IP}
+\label{tab:vlans}
+\begin{tabularx}{\textwidth}{YYYY}
+\toprule
+\textbf{Local} & \textbf{Dept./VLAN} & \textbf{Sub-rede} & \textbf{Gateway Padrão} \\
+\midrule
+Matriz & TI (VLAN 10) & 172.20.10.0/24 & 172.20.10.1 \\
+Matriz & RH (VLAN 20) & 172.20.20.0/24 & 172.20.20.1 \\
+Filial & RH (VLAN 100) & 172.20.100.0/24 & 172.20.100.1 \\
+Filial & TI (VLAN 200) & 172.20.200.0/24 & 172.20.200.1 \\
+Matriz & Datacenter & 172.20.50.0/24 & 172.20.50.1 \\
+Filial & Datacenter & 172.20.60.0/24 & 172.20.60.1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Endereçamento de Servidores}
+\label{subsec:servidores}
+
+Os servidores corporativos possuem endereçamento estático, com mapeamento para IPs públicos via NAT, conforme Tabela \ref{tab:servidores}.
+
+\begin{table}[H]
+\centering
+\caption{Endereçamento de Servidores e NAT}
+\label{tab:servidores}
+\begin{tabularx}{\textwidth}{YYYY}
+\toprule
+\textbf{Serviço} & \textbf{Local} & \textbf{IP Privado} & \textbf{IP Público (NAT Estático)} \\
+\midrule
+DNS & Matriz & 172.20.50.2/24 & 31.57.60.23 \\
+ERP & Matriz & 172.20.50.3/24 & 31.57.60.24 \\
+VoIP & Matriz & 172.20.50.4/24 & 31.57.60.25 \\
+ERP & Filial & 172.20.60.2/24 & 200.36.158.121 \\
+VoIP & Filial & 172.20.60.3/24 & 200.36.158.121 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Links Ponto-a-Ponto e IPs Públicos}
+\label{subsec:links}
+
+Os links ponto-a-ponto entre dispositivos internos utilizam a faixa 172.20.69.x/30. Os links para os ISPs utilizam os seguintes endereçamentos públicos:
+\begin{itemize}
+    \item \textbf{Firewall Matriz $\rightarrow$ ISP Eletronet}: 104.119.41.4/30
+    \item \textbf{Firewall Matriz $\rightarrow$ ISP ASAP Telecom}: 104.119.41.12/30
+    \item \textbf{Firewall Filial $\rightarrow$ ISP Eletronet}: 104.119.41.8/30
+    \item \textbf{Firewall Filial $\rightarrow$ ISP ASAP Telecom}: 104.119.41.16/30
+\end{itemize}
+Para o PAT (NAT Overload), são utilizados os IPs das próprias portas do roteador firewall.
+
+\subsection{Projeto de Roteamento}
+\label{subsec:roteamento}
+
+A redundância é alcançada através da configuração de múltiplos caminhos e da utilização de dois provedores de Internet. O protocolo de roteamento padrão do Cisco Packet Tracer será utilizado para a troca dinâmica de informações de rota entre os dispositivos de camada 3 (Multilayer Switches e Roteador Core), garantindo a convergência da rede em caso de falhas.
+
+\section{Serviços de Rede}
+\label{sec:servicos}
+
+\subsection{Configuração de NAT/NAPT}
+\label{subsec:nat}
+
+O serviço de tradução de endereços de rede (NAT) é configurado no firewall de borda para:
+\begin{itemize}
+    \item \textbf{NAT Estático}: Mapeamento one-to-one de IPs públicos para os servidores internos (Tabela \ref{tab:servidores}), permitindo acesso externo controlado.
+    \item \textbf{PAT (NAPT Overload)}: Tradução de todos os IPs privados das VLANs de usuários para os IPs públicos das interfaces de saída do firewall, permitindo o acesso múltiplo e simultâneo à Internet.
+\end{itemize}
+
+\subsection{Regras de Firewall}
+\label{subsec:firewall}
+
+A política de segurança ``Default Deny'' é implementada, negando explicitamente todo o tráfego não permitido. As regras são baseadas no princípio do menor privilégio, garantindo a segurança da rede. A Tabela \ref{tab:regras_firewall} sumariza as regras implementadas.
+
+\begin{table}[H]
+\centering
+\caption{Sumário das Regras de Firewall Implementadas}
+\label{tab:regras_firewall}
+\begin{tabularx}{\textwidth}{YYYYY}
+\toprule
+\textbf{Serv.} & \textbf{Sent.} & \textbf{Prot./Porta} & \textbf{Faixa de IPs} & \textbf{Ação} \\
+\midrule
+HTTP/HTTPS & Egresso/Ingresso & TCP/80, 443 & Interno $\leftrightarrow$ Qualquer & PERMITIR \\
+DNS & Egresso/Ingresso & UDP/53 & Interno $\leftrightarrow$ Qualquer & PERMITIR \\
+ICMP (Ping) & Egresso/Ingresso & ICMP & Interno $\leftrightarrow$ Qualquer & PERMITIR \\
+ERP & Entre Filiais & TCP/30, 80, 443 & 172.20.50.3 $\leftrightarrow$ 172.20.60.2 & PERMITIR \\
+SIP/VoIP & Entre Filiais e PABX & UDP/5060-5061 & 172.20.50.4 $\leftrightarrow$ 200.36.158.122 & PERMITIR \\
+RTP/VoIP & Entre Filiais e PABX & UDP/10000-11000 & 172.20.50.4 $\leftrightarrow$ 200.36.158.122 & PERMITIR \\
+Qualquer & Qualquer & Qualquer & Qualquer $\leftrightarrow$ Qualquer & NEGAR (Implícita) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Especificações do Link de Internet e SLA}
+\label{subsec:provedores}
+
+Para garantir conectividade robusta e em conformidade com as necessidades empresariais, foram selecionados dois provedores, conforme detalhado na Tabela \ref{tab:provedores}.
+
+\begin{table}[H]
+\centering
+\caption{Especificações dos Provedores de Internet}
+\label{tab:provedores}
+\begin{tabularx}{\textwidth}{YYY}
+\toprule
+\textbf{Provedor / Serviço} & \textbf{Largura de Banda} & \textbf{SLA (Acordo de Nível de Serviço)} \\
+\midrule
+\textbf{Eletronet (Principal)} & Até 400 Gbps (Fibra Óptica) & Disponibilidade de 99.9\% \\
+\textbf{ASAP Telecom (Backup)} & Até 10 Gbps (Fibra Óptica) & A ser verificado no contrato \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+O SLA (Acordo de Nível de Serviço) é um componente crítico do contrato com os provedores, estabelecendo as métricas de desempenho esperadas, níveis de disponibilidade e as compensações em caso de descumprimento. O SLA de 99.9\% ofertado pela Eletronet se traduz em aproximadamente 8 horas e 46 minutos de tempo de inatividade permitido por ano, assegurando um alto nível de confiabilidade para o link principal. As métricas típicas incluem tempo de resposta, tempo de resolução de falhas e disponibilidade do serviço.
+
+\subsection{Especificações da VPN Site-to-Site}
+\label{subsec:vpn}
+
+Para o link seguro entre a Matriz e a Filial sobre a Internet, será implementada uma VPN \textbf{IPSec} em modo túnel. Esta é uma forma econômica e segura de conectar sites geograficamente distribuídos, criando um "túnel" criptografado para transmissão de dados.
+
+\subsubsection{Configurações Técnicas da VPN IPSec}
+\label{subsubsec:vpn-config}
+
+\begin{itemize}
+    \item \textbf{Modo de Operação}: Túnel.
+    \item \textbf{Protocolo de Criptografia}: AES-256 (Advanced Encryption Standard com chave de 256 bits).
+    \item \textbf{Protocolo de Autenticação e Integridade}: SHA-256 (Secure Hash Algorithm 256-bit).
+    \item \textbf{Protocolo de Troca de Chaves}: IKEv2 (Internet Key Exchange version 2).
+    \item \textbf{Protocolos Suportados}: OpenVPN (padrão do setor para segurança robusta) e L2TP/IPSec.
+\end{itemize}
+
+\subsubsection{Componentes e Funcionamento}
+\label{subsubsec:vpn-components}
+
+A VPN é composta por um cliente e um servidor VPN. O tráfego é criptografado pelo cliente, enviado de forma segura através do túnel até o servidor na unidade remota, que então descriptografa e encaminha os pacotes para a rede local de destino. Esta configuração protege a confidencialidade e integridade de todos os dados trafegados entre as unidades da empresa.
+
+\section{Implementação no Packet Tracer}
+\label{sec:implementacao}
+
+\subsection{Configurações de Switch}
+\label{subsec:config-switch}
+
+\begin{itemize}
+    \item \textbf{Modo Acesso}: Portas conectadas a PCs.
+    \item \textbf{Modo Trunk}: Portas interconectando switches e conectadas a roteadores. Nos switches 3560 (layer 3), é necessário executar os comandos adicionais para definir a encapsulação e o modo trunk (\texttt{switchport trunk encapsulation dot1q} e \texttt{switchport mode trunk}).
+    \item \textbf{VLANs permitidas nos trunks}: Todas as VLANs relevantes.
+    \item \textbf{Gateway Default}: O IP da interface VLAN em cada switch layer 3 (ex: \texttt{interface vlan 10}) será o gateway padrão dos PCs naquela VLAN.
+    \item \textbf{Roteamento IP}: O comando \texttt{ip routing} deve ser habilitado em cada switch layer 3.
+\end{itemize}
+
+\subsection{Configuração de ACLs para Firewall}
+\label{subsec:acls}
+
+As regras de firewall foram implementadas usando Access Control Lists (ACLs) extendidas na semântica de firewall sem estado. Foram criadas ACLs para tráfego de entrada e saída nas interfaces do firewall, aplicando as políticas definidas na Tabela \ref{tab:regras_firewall}.
+
+\section{Conclusão}
+\label{sec:conclusao}
+
+Este relatório detalhou o projeto completo de rede corporativa para a empresa BRL, abrangendo desde a topologia física e lógica até as especificações de segurança e conectividade. A implementação proposta, seguindo um modelo hierárquico com redundância, políticas de segurança robustas e uma VPN IPSec site-to-site, fornece uma base sólida para uma infraestrutura de rede escalável, eficiente e segura. O projeto atende às necessidades atuais e futuras das operações da empresa BRL em sua Matriz e Filial, garantindo alta disponibilidade e proteção para os dados corporativos.
+
+\begin{thebibliography}{9}
+
+\bibitem{cisco}
+Cisco Systems. (2023). \emph{Cisco Hierarchical Network Model}.
+Disponível em: \url{https://www.cisco.com}
+
+\bibitem{ipsec}
+IETF. (2023). \emph{IP Security Protocol (ipsec)}. RFC 4301-4309.
+Disponível em: \url{https://www.ietf.org}
+
+\bibitem{vpn}
+Microsoft. (2023). \emph{VPN Gateway design}.
+Disponível em: \url{https://learn.microsoft.com}
+
+\bibitem{eletronet}
+Eletronet. (2024). \emph{Serviços de Fibra Óptica}.
+Disponível em: \url{https://www.eletronet.com}
+
+\bibitem{asap}
+ASAP Telecom. (2024). \emph{Conectividade Empresarial}.
+Disponível em: \url{https://www.asaptelecom.com.br}
+
+\bibitem{nat}
+Cisco. (2023). \emph{Configuring NAT on Cisco Routers}.
+Disponível em: \url{https://www.cisco.com}
+
+\bibitem{firewall}
+Tanenbaum, A. S.; Wetherall, D. J. (2011). \emph{Computer Networks}. 5ª ed. Pearson.
+
+\bibitem{vlan}
+IEEE 802.1Q. (2018). \emph{VLAN Tagging}. IEEE Standards.
+
+\bibitem{sla}
+ITIL. (2019). \emph{Service Level Agreements Best Practices}. Axelos.
+
+\end{thebibliography}
+
+\end{document}

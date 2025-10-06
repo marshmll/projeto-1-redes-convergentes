@@ -1,0 +1,5 @@
+Para mexer na documentação, deve criar um projeto no Overleaf (para renderizar)
+e copiar todos os arquivos dentro deste diretório (exceto esse .txt) dentro do
+projeto.
+Ao terminar as alterações, substituir os arquivos alterados aqui dentro (inclu-
+sive imagens e quaisquer outras coisas.)
