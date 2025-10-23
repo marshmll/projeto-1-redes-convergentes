@@ -37,7 +37,7 @@
         \vspace{1.2cm}
         \includegraphics[width=0.3\textwidth]{pucpr.png}
         \vspace{1.2cm}
-        
+
         \begin{flushleft}
             \begin{tabbing}
                 \hspace{3cm} \= \kill
@@ -105,7 +105,7 @@ A empresa BRL opera em duas unidades: a Matriz (São Paulo) com 150 usuários, e
     \label{fig:geral}
 \end{figure}
 
-A topologia foi implementada no modelo hierárquico de três camadas (Núcleo, Distribuição e Acesso) em ambos os sites (Matriz e Filial). A conectividade entre os sites é garantida por um enlace VPN Site-to-Site sobre a Internet, com links redundantes para provedores de serviços.
+A topologia foi implementada no modelo hierárquico de três camadas (Núcleo, Distribuição e Acesso) em ambos os sites (Matriz e Filial). A conectividade entre os sites é garantida por um enlace VPN Site-to-Site sobre a Internet (apenas descrito em relatório, não implementado), com links redundantes para provedores de serviços.
 
 \begin{figure}[H]
     \centering
@@ -135,7 +135,7 @@ Todos os aspectos topológicos comentados acima, podem ser visualizados na Figur
     \label{fig:filial}
 \end{figure}
 
-A topologia da rede Filial é um espelho da rede Matriz, com a única exceção de conter um servidor a menos (servidor DNS), conforme demonstrado na Figura \ref{fig:filial}. 
+A topologia da rede Filial é um espelho da rede Matriz, com a única exceção de conter um servidor a menos (servidor DNS), conforme demonstrado na Figura \ref{fig:filial}.
 
 \begin{figure}[H]
     \centering
@@ -242,7 +242,7 @@ O serviço de tradução de endereços de rede (NAT) é configurado no firewall 
 \subsection{Regras de Firewall}
 \label{subsec:firewall}
 
-A política de segurança ``Default Deny'' é implementada, negando explicitamente todo o tráfego não permitido. As regras são baseadas no princípio do menor privilégio, garantindo a segurança da rede. 
+A política de segurança ``Default Deny'' é implementada, negando explicitamente todo o tráfego não permitido. As regras são baseadas no princípio do menor privilégio, garantindo a segurança da rede.
 
 \subsubsection{Política de Firewall Matriz}
 
@@ -257,12 +257,14 @@ O firewall da Matriz adota uma política de permitir comunicações essenciais e
     \item \textbf{SIP/RTP (Voz sobre IP):} é permitido o tráfego de voz (SIP nas portas 5060–5061 e RTP entre 10000–11000) entre o servidor VoIP da Matriz e o servidor VoIP da filial (200.36.158.122), garantindo comunicação VoIP exclusiva entre os dois sites.
 \end{itemize}.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{tabela-matriz.png}
     \caption{Regras de Firewall - Matriz}
     \label{fig:placeholder}
 \end{figure}
+
+Nota: \texttt{IPS\_FILIAL} entende-se como os IPs públicos dos dois provedores utilizados pela Filial no NAPT (104.119.41.9 e 104.119.41.17); portanto, existem regras de egressos e ingressos para ambos os IPs públicos.
 
 Em resumo, a Matriz atua como ponto principal da rede corporativa, controlando fluxos com a filial e o provedor VoIP, e liberando serviços web, DNS e ERP de forma controlada.
 
@@ -280,12 +282,14 @@ O firewall da Filial segue uma política espelhada, com foco em acesso controlad
 
 Assim, a Filial mantém conectividade segura com a Matriz e com a Internet, restringindo o tráfego apenas a protocolos e portas estritamente necessárias.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{tabela-filial.png}
     \caption{Regras de Firewall - Filial}
     \label{fig:placeholder}
 \end{figure}
+
+Nota: \texttt{IPS\_MATRIZ} entende-se como os IPs públicos dos dois provedores utilizados pela Matriz no NAPT (104.119.41.5 e 104.119.41.13); portanto, existem regras de egressos e ingressos para ambos os IPs públicos.
 
 \subsection{Especificações do Link de Internet e SLA}
 \label{subsec:provedores}
@@ -306,18 +310,18 @@ Para garantir conectividade robusta e em conformidade com as necessidades empres
 \end{tabularx}
 \end{table}
 
-O \textit{Service Level Agreement} (SLA) define os parâmetros de desempenho e disponibilidade contratados com os provedores. O serviço da Eletronet \cite{eletronet} utiliza rede óptica baseada em tecnologia \textit{DWDM} (Dense Wavelength Division Multiplexing), com backbone próprio de mais de 17 mil km interligando os principais pontos de troca de tráfego (PTTs) do Brasil, permitindo conexões de até 400~Gbps com baixa latência e suporte corporativo contínuo. 
+O \textit{Service Level Agreement} (SLA) define os parâmetros de desempenho e disponibilidade contratados com os provedores. O serviço da Eletronet \cite{eletronet} utiliza rede óptica baseada em tecnologia \textit{DWDM} (Dense Wavelength Division Multiplexing), com backbone próprio de mais de 17 mil km interligando os principais pontos de troca de tráfego (PTTs) do Brasil, permitindo conexões de até 400~Gbps com baixa latência e suporte corporativo contínuo.
 
 Já o serviço da ASAP Telecom \cite{asap} é implementado sobre fibra óptica dedicada (\textit{link ponto a ponto}), oferecendo redundância ao link principal com banda contratual de até 10~Gbps, gerenciamento proativo de falhas e monitoramento em tempo real.
 
-O SLA de 99,95\% ofertado pela Eletronet implica em até cerca de 4h22min de indisponibilidade anual, enquanto o SLA de 99,5\% da ASAP Telecom representa até 1 dia e 19h de possível inatividade ao ano — valores aceitáveis dentro de um cenário de contingência empresarial. 
+O SLA de 99,95\% ofertado pela Eletronet implica em até cerca de 4h22min de indisponibilidade anual, enquanto o SLA de 99,5\% da ASAP Telecom representa até 1 dia e 19h de possível inatividade ao ano — valores aceitáveis dentro de um cenário de contingência empresarial.
 
 As métricas de desempenho incluem latência, \textit{packet loss}, tempo de resolução de falhas e disponibilidade contínua do serviço, elementos essenciais para a estabilidade de aplicações críticas como ERP, VPN e VoIP.
 
 \subsection{Especificações da VPN Site-to-Site}
 \label{subsec:vpn}
 
-Para garantir a comunicação segura entre a Matriz e a Filial, interligadas por meio de provedores de Internet distintos e potencialmente inseguros, é proposta a implementação de uma \textbf{VPN (Virtual Private Network)} no modelo Site-to-Site utilizando o protocolo IPSec em modo túnel. 
+Para garantir a comunicação segura entre a Matriz e a Filial, interligadas por meio de provedores de Internet distintos e potencialmente inseguros, é proposta a implementação de uma \textbf{VPN (Virtual Private Network)} no modelo Site-to-Site utilizando o protocolo IPSec em modo túnel.
 
 Essa abordagem permite encapsular e criptografar todo o tráfego IP entre as duas redes locais corporativas, garantindo confidencialidade, integridade e autenticação ponta a ponta entre os roteadores/firewalls de borda de ambas as unidades.
 
